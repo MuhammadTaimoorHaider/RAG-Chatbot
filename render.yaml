@@ -1,0 +1,51 @@
+services:
+  - type: web
+    name: rag-api
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: EMBEDDING_MODEL
+        value: sentence-transformers/all-MiniLM-L6-v2
+      - key: PINECONE_API_KEY
+        sync: false
+      - key: PINECONE_ENVIRONMENT
+        sync: false
+      - key: PINECONE_INDEX_NAME
+        value: production-rag-index
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        sync: false
+      - key: REDIS_DB
+        value: "0"
+      - key: REDIS_PASSWORD
+        sync: false
+      - key: TOP_K_RESULTS
+        value: "4"
+      - key: MAX_CONVERSATION_HISTORY
+        value: "10"
+
+  - type: web
+    name: rag-streamlit
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true --browser.gatherUsageStats false
+    autoDeploy: true
+    envVars:
+      - key: API_BASE_URL
+        sync: false

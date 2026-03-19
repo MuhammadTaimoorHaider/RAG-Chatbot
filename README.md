@@ -34,5 +34,3 @@ Upload documents (PDF, DOCX, TXT, MD) and ask questions - get intelligent answer
 - **Vector DB**: Pinecone
 - **Embeddings**: HuggingFace all-MiniLM-L6-v2
 - **Memory**: Redis
-
-Built with ❤️ using Claude Code

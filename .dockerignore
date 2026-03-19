@@ -1,0 +1,61 @@
+# Ignore virtual environments
+.venv/
+.venv312/
+venv/
+env/
+ENV/
+
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyc
+
+# Ignore git
+.git/
+.gitignore
+.gitattributes
+
+# Ignore IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore logs (will be created in container)
+logs/
+*.log
+
+# Ignore uploads (will be created in container)
+uploads/
+
+# Ignore environment files (use HF secrets instead)
+.env
+.env.local
+
+# Ignore documentation (not needed in container)
+*.md
+!README.md
+
+# Ignore Docker files not used in HF
+Dockerfile
+Dockerfile.streamlit
+docker-compose.yml
+
+# Ignore test files
+tests/
+*.test.py
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Ignore Redis dump
+dump.rdb

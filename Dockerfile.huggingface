@@ -1,0 +1,67 @@
+# Hugging Face Space Docker - Complete RAG System
+# This Dockerfile runs both FastAPI backend and Streamlit frontend
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    curl \
+    redis-server \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY config.py .
+COPY rag_chain.py .
+COPY main.py .
+COPY app.py .
+COPY .env.example .env
+
+# Create necessary directories
+RUN mkdir -p /app/uploads /app/logs
+
+# Expose ports
+# Note: HF Spaces will map to their port, but we use 7860 internally
+EXPOSE 7860
+
+# Create startup script that runs both services
+RUN echo '#!/bin/bash\n\
+# Start Redis in background\n\
+redis-server --daemonize yes --bind 127.0.0.1 --port 6379\n\
+\n\
+# Wait for Redis to be ready\n\
+until redis-cli ping > /dev/null 2>&1; do\n\
+  echo "Waiting for Redis..."\n\
+  sleep 1\n\
+done\n\
+echo "Redis is ready!"\n\
+\n\
+# Start FastAPI in background\n\
+uvicorn main:app --host 0.0.0.0 --port 8000 &\n\
+API_PID=$!\n\
+\n\
+# Wait for API to be ready\n\
+echo "Starting FastAPI backend..."\n\
+until curl -f http://localhost:8000/health > /dev/null 2>&1; do\n\
+  echo "Waiting for API..."\n\
+  sleep 2\n\
+done\n\
+echo "API is ready!"\n\
+\n\
+# Start Streamlit on HF Spaces port (7860)\n\
+echo "Starting Streamlit frontend..."\n\
+export API_BASE_URL=http://localhost:8000\n\
+streamlit run app.py --server.port=7860 --server.address=0.0.0.0 --server.headless=true --browser.gatherUsageStats=false --server.enableCORS=false --server.enableXsrfProtection=false\n\
+\n\
+# If streamlit exits, kill the API\n\
+kill $API_PID\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
+# Run startup script
+CMD ["/app/start.sh"]

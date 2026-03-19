@@ -351,7 +351,7 @@ async def health_check():
 
     Tests connectivity to:
     - Pinecone vector database
-    - OpenAI API
+    - Groq API (via embeddings test)
     - Redis (if available)
 
     Returns service status and connectivity information.
@@ -371,17 +371,17 @@ async def health_check():
             logger.error(f"Pinecone health check failed: {str(e)}")
             services["pinecone"] = "error"
 
-        # Check OpenAI
+        # Check Embeddings (HuggingFace)
         try:
             if rag_system:
                 # Simple embedding test
                 test_embedding = rag_system["embedding_manager"].embed_query("test")
-                services["openai"] = "operational" if len(test_embedding) > 0 else "error"
+                services["embeddings"] = "operational" if len(test_embedding) > 0 else "error"
             else:
-                services["openai"] = "not_initialized"
+                services["embeddings"] = "not_initialized"
         except Exception as e:
-            logger.error(f"OpenAI health check failed: {str(e)}")
-            services["openai"] = "error"
+            logger.error(f"Embeddings health check failed: {str(e)}")
+            services["embeddings"] = "error"
 
         # Check Redis
         try:

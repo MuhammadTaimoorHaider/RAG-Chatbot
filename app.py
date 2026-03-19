@@ -601,7 +601,7 @@ def main():
         st.caption(f"Namespace: {st.session_state.namespace}")
 
     with col3:
-        st.caption("Powered by OpenAI & Pinecone")
+        st.caption("Powered by Groq & Pinecone")
 
 
 if __name__ == "__main__":
